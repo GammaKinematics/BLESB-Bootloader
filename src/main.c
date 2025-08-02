@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2024 GammaKinematics  
+ * Ultra-minimal BLESB bootloader
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
 
 // SPDT test pin (replace with actual SPDT pins later)
-#define SPDT_GPIO_NODE   DT_NODELABEL(gpio0)
 #define SPDT_PIN         2  // P0.02 for testing
 
 // Firmware base addresses  
@@ -55,9 +60,9 @@ static void jump_to_firmware(uint32_t firmware_base)
 
 int main(void)
 {
-    // Initialize GPIO device
-    gpio_dev = DEVICE_DT_GET(SPDT_GPIO_NODE);
-    if (!device_is_ready(gpio_dev)) {
+    // Get GPIO device by label (nRF52 standard)
+    gpio_dev = device_get_binding("GPIO_0");
+    if (gpio_dev == NULL) {
         // Fallback to BLE mode if GPIO fails
         jump_to_firmware(BLE_FIRMWARE_BASE);
     }
